@@ -1,15 +1,15 @@
 import React from 'react';
 import { Helmet } from 'react-helmet';
-import { Header, Titulo, ContenedorHeader, ContenedorBotones } from './../Elementos/Header';
+import { Header, Titulo, ContenedorHeader } from './../Elementos/Header';
 import Boton from './../Elementos/Boton';
-import { ContenedorFiltros, Formulario, Input, InputGrande, ContenedorBoton }
+import { Formulario, Input, ContenedorBoton }
     from './../Elementos/ElementosDeFormulario';
 import { ReactComponent as SvgLogin } from './../imagenes/registro.svg';
 import styled from 'styled-components';
 
 const Svg = styled(SvgLogin)`
 width:100%;
-max-height: 6.25rem;
+max-height: 9rem;
 margin-bottom:1.25rem;
 `;
 

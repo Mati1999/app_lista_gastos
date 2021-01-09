@@ -40,7 +40,7 @@ const Formulario = styled.form`
 `;
 
 const Input = styled.input`
-    font-size: 2.5rem; /* 40px */
+    font-size: 3rem; /* 40px */
     text-transform: uppercase;
     border: none;
     border-bottom: 2px solid ${theme.grisClaro};
