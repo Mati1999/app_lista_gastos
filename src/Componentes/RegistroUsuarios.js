@@ -6,6 +6,9 @@ import { Formulario, Input, ContenedorBoton }
     from './../Elementos/ElementosDeFormulario';
 import { ReactComponent as SvgLogin } from './../imagenes/registro.svg';
 import styled from 'styled-components';
+import { auth } from './../Firebase/FireBaseConfig';
+import { useHistory } from 'react-router-dom';
+import Alerta from './../Elementos/Alerta';
 
 const Svg = styled(SvgLogin)`
 width:100%;
@@ -15,9 +18,12 @@ margin-bottom:1.25rem;
 
 const RegistroUsuarios = () => {
 
+    const history = useHistory();
     const [correo, establecerCorreo] = useState('')
     const [password, establecerPassword] = useState('')
     const [password2, establecerPassword2] = useState('')
+    const [estadoAlerta, cambiarEstadoAlerta] = useState(false);
+    const [alerta, cambiarAlerta] = useState({});
 
     const handleChange = (e) => {
         switch (e.target.name) {
@@ -36,26 +42,66 @@ const RegistroUsuarios = () => {
     }
 
 
-    const handleSubmit = (e) => {
+    //Funcion asincrona, es una funcion que se va a ejecutar de fondo
+    const handleSubmit = async (e) => {
         e.preventDefault();
+        cambiarEstadoAlerta(false);
+        cambiarAlerta({});
 
         // Comprobamos del lado del cliente que el correo sea  valido.
 
         const expresionRegular = /[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+/;
         if (!expresionRegular.test(correo)) {
-            console.log('Ingresa un correo valido');
+            cambiarEstadoAlerta(true);
+            cambiarAlerta({
+                tipo: 'error',
+                mensaje: 'Por favor ingrese un correo valido'
+            })
             return;
         };
         if (correo === "" || password === "" || password2 === "") {
-            console.log("Porr favor rellene todos los datos");
+            cambiarEstadoAlerta(true);
+            cambiarAlerta({
+                tipo: 'error',
+                mensaje: 'Por favor rellene todos los datos'
+            })
             return;
         }
         if (password !== password2) {
-            console.log('Las contraseñas no son iguales');
+            cambiarEstadoAlerta(true);
+            cambiarAlerta({
+                tipo: 'error',
+                mensaje: 'Las contraseñas no son iguales'
+            })
             return;
         }
-        console.log('Registramos usuario');
+        try {
+            //Await: para decir que queremos que esta funcion termine para poder ejecutar por ejemplo el log.
+            await auth.createUserWithEmailAndPassword(correo, password)
+            history.push('/');
+        } catch (error) {
+
+            cambiarEstadoAlerta(true);
+
+            let mensaje;
+            switch (error.code) {
+                case 'auth/invalid-password':
+                    mensaje = 'La contraseña tiene que ser de al menos 6 caracteres.'
+                    break;
+                case 'auth/email-already-in-use':
+                    mensaje = 'Ya existe una cuenta con el correo electrónico proporcionado.'
+                    break;
+                case 'auth/invalid-email':
+                    mensaje = 'El correo electrónico no es válido.'
+                    break;
+                default:
+                    mensaje = 'Hubo un error al intentar crear la cuenta.'
+                    break;
+            }
+            cambiarAlerta({ tipo: 'error', mensaje: mensaje });
+        }
     }
+
 
     return (
         <>
@@ -81,6 +127,7 @@ const RegistroUsuarios = () => {
                     <Boton as="button" primario type="submit">Crear Cuenta</Boton>
                 </ContenedorBoton>
             </Formulario>
+            <Alerta tipo={alerta.tipo} mensaje={alerta.mensaje} estadoAlerta={estadoAlerta} cambiarEstadoAlerta={cambiarEstadoAlerta} />
         </>
     );
 }
