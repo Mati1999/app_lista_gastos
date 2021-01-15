@@ -4,8 +4,8 @@ import Boton from './../Elementos/Boton';
 import { ReactComponent as IconoPlus } from './../imagenes/plus.svg';
 import SelectCategorias from './SelectCategorias';
 import DatePicker from './DatePicker';
-import getUnixTime from 'date-fns/getUnixTime'
-import fromUnixTime from 'date-fns/fromUnixTime'
+import getUnixTime from 'date-fns/getUnixTime';
+// import fromUnixTime from 'date-fns/fromUnixTime';
 import agregarGasto from './../Firebase/agregarGasto';
 import { useAuth } from './../Contextos/AuthContext';
 import Alerta from './../Elementos/Alerta';

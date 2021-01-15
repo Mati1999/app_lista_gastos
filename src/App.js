@@ -4,6 +4,8 @@ import { Header, Titulo, ContenedorHeader, ContenedorBotones } from './Elementos
 import Boton from './Elementos/Boton';
 import BotonCerrarSesion from './Elementos/BotonCerrarSesion';
 import FormularioGasto from './Componentes/FormularioGasto';
+import BarraTotalGastado from './Componentes/BarraTotalGastado';
+
 const App = () => {
   return (
     <>
@@ -22,6 +24,7 @@ const App = () => {
       </Header>
 
       <FormularioGasto />
+      <BarraTotalGastado />
     </>
   );
 }
