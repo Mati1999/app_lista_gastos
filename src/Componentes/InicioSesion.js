@@ -34,23 +34,6 @@ const InicioSesion = () => {
         }
     }
 
-    // const handleChange = (e) => {
-    //     switch (e.target.name) {
-    //         case 'email':
-    //             establecerCorreo(e.target.value);
-    //             break;
-    //         case 'password':
-    //             establecerPassword(e.target.value);
-    //             break;
-    //         case 'password2':
-    //             establecerPassword2(e.target.value);
-    //             break;
-    //         default:
-    //             break;
-    //     }
-    // }
-
-
     //Funcion asincrona, es una funcion que se va a ejecutar de fondo
     const handleSubmit = async (e) => {
         e.preventDefault();

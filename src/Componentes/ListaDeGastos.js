@@ -31,7 +31,7 @@ import { es } from 'date-fns/locale';
 
 const ListaDeGastos = () => {
 
-    const [gastos] = useObtenerGastos();
+    const [gastos, obtenerMasGastos, hayMasPorCargar] = useObtenerGastos();
 
     const formatearFecha = (fecha) => {
         return format(fromUnixTime(fecha), "dd 'de' MMM 'de' yyyy", { locale: es });
@@ -88,9 +88,12 @@ const ListaDeGastos = () => {
                         </div>
                     );
                 })}
-                <ContenedorBotonCentral>
-                    <BotonCargarMas>Cargar Mas</BotonCargarMas>
-                </ContenedorBotonCentral>
+                {hayMasPorCargar &&
+                    <ContenedorBotonCentral>
+                        <BotonCargarMas onClick={() => obtenerMasGastos()}>Cargar Mas</BotonCargarMas>
+                    </ContenedorBotonCentral>
+                }
+
 
                 {gastos.length === 0 &&
                     <ContenedorSubtitulo>
