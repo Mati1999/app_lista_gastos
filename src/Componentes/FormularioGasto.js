@@ -1,16 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ContenedorFiltros, Formulario, Input, InputGrande, ContenedorBoton } from './../Elementos/ElementosDeFormulario';
 import Boton from './../Elementos/Boton';
 import { ReactComponent as IconoPlus } from './../imagenes/plus.svg';
 import SelectCategorias from './SelectCategorias';
 import DatePicker from './DatePicker';
 import getUnixTime from 'date-fns/getUnixTime';
-// import fromUnixTime from 'date-fns/fromUnixTime';
+import fromUnixTime from 'date-fns/fromUnixTime';
 import agregarGasto from './../Firebase/agregarGasto';
 import { useAuth } from './../Contextos/AuthContext';
 import Alerta from './../Elementos/Alerta';
+import { useHistory } from 'react-router-dom';
+import editarGasto from '../Firebase/editarGasto';
 
-const FormularioGasto = () => {
+const FormularioGasto = ({ gasto }) => {
 
     const [inputDescripcion, cambiarInputDescripcion] = useState('');
     const [inputCantidad, cambiarInputCantidad] = useState('');
@@ -19,6 +21,24 @@ const FormularioGasto = () => {
     const { usuario } = useAuth();
     const [estadoAlerta, cambiarEstadoAlerta] = useState(false);
     const [alerta, cambiarAlerta] = useState({});
+    const history = useHistory();
+
+    useEffect(() => {
+        //Comprobamos si ya hay algun gasto
+        //De ser asi establecemos todo el state con los valores del gasto.
+        if (gasto) {
+            //comprobamos que el gasto sea del usuario actual.
+            //Para eso comprobamos el uid guardado en el gasto con el uid del usuario.
+            if (gasto.data().uidUsuario === usuario.uid) {
+                cambiarCategoria(gasto.data().categoria);
+                cambiarFecha(fromUnixTime(gasto.data().fecha));
+                cambiarInputDescripcion(gasto.data().descripcion);
+                cambiarInputCantidad(gasto.data().cantidad);
+            } else {
+                history.push('/lista');
+            }
+        }
+    }, [gasto, usuario, history]);
 
     const handleChange = (e) => {
         if (e.target.name === 'descripcion') {
@@ -36,27 +56,41 @@ const FormularioGasto = () => {
         //Comprobamos que haya una descripcion y valor
         if (inputDescripcion !== '' && inputCantidad !== '') {
             if (cantidad) {
-                agregarGasto({
-                    categoria: categoria,
-                    descripcion: inputDescripcion,
-                    cantidad: cantidad,
-                    fecha: getUnixTime(fecha),
-                    uidUsuario: usuario.uid
-                })
-                    .then(() => {
-                        cambiarCategoria('Hogar');
-                        cambiarInputDescripcion('');
-                        cambiarInputCantidad('');
-                        cambiarFecha(new Date());
-
-                        cambiarEstadoAlerta(true);
-                        cambiarAlerta({ tipo: 'exito', mensaje: 'El gasto fue agregado correctamente' })
-
+                if (gasto) {
+                    editarGasto({
+                        id: gasto.id,
+                        categoria: categoria,
+                        descripcion: inputDescripcion,
+                        cantidad: cantidad,
+                        fecha: getUnixTime(fecha)
+                    }).then(() => {
+                        history.push('/lista');
+                    }).catch((error) => {
+                        console.log(error);
                     })
-                    .catch((error) => {
-                        cambiarEstadoAlerta(true);
-                        cambiarAlerta({ tipo: 'error', mensaje: 'Hubo un problema al intentar agregar tu gasto' })
+                } else {
+                    agregarGasto({
+                        categoria: categoria,
+                        descripcion: inputDescripcion,
+                        cantidad: cantidad,
+                        fecha: getUnixTime(fecha),
+                        uidUsuario: usuario.uid
                     })
+                        .then(() => {
+                            cambiarCategoria('Hogar');
+                            cambiarInputDescripcion('');
+                            cambiarInputCantidad('');
+                            cambiarFecha(new Date());
+
+                            cambiarEstadoAlerta(true);
+                            cambiarAlerta({ tipo: 'exito', mensaje: 'El gasto fue agregado correctamente' })
+
+                        })
+                        .catch((error) => {
+                            cambiarEstadoAlerta(true);
+                            cambiarAlerta({ tipo: 'error', mensaje: 'Hubo un problema al intentar agregar tu gasto' })
+                        })
+                }
             } else {
                 cambiarEstadoAlerta(true);
                 cambiarAlerta({ tipo: 'error', mensaje: 'El valor que ingresaste no es correcto' })
@@ -83,7 +117,7 @@ const FormularioGasto = () => {
             </div>
             <ContenedorBoton>
                 <Boton as="button" primario conIcono type="submit">
-                    Agregar Gasto <IconoPlus />
+                    {gasto ? 'Editar Gasto' : 'Agregar Gasto'} <IconoPlus />
                 </Boton>
             </ContenedorBoton>
             <Alerta
